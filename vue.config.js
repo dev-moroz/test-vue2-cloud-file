@@ -1,5 +1,5 @@
 const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
   transpileDependencies: ["vuetify"],
-  // mode: "production",
+  publicPath: "/test-vue2-cloud-file/",
 });
