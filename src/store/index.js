@@ -165,42 +165,16 @@ export default new Vuex.Store({
 
     authGoogle({ dispatch, commit }) {
       const provider = new firebase.auth.GoogleAuthProvider();
-      // firebase
-      //   .auth()
-      //   .signInWithPopup(provider)
-      //   .then(result => {
-      //     /** @type {firebase.auth.OAuthCredential} */
-      //     // console.log("user: ", result.user)
-      //     commit("setAuth", result.user)
-      //     dispatch("getData", { path: "/" });
-      //   })
-      //   .catch(error => {
-      //     console.log(error)
-      //   })
-
       firebase
         .auth()
         .signInWithPopup(provider)
-        .then(result => {
+        .then(res => {
           /** @type {firebase.auth.OAuthCredential} */
-          // var credential = result.credential;
-
-          // var token = credential.accessToken;
-          var userId = result.user.uid;
-          // console.log("token: ", token);
-          // console.log("userId: ", userId);
-          // console.log("credential: ", credential);
-          commit("setAuth", userId);
-
-          // state.testGoogleId = userId
-          // state.currentUser = userId
-          // localStorage.id = userId
-          // dispatch("getData", {});
+          commit("setAuth", res.user.uid);
           dispatch("getData", {});
         })
         .catch(error => {
           console.log(error);
-          // commit("setAuth");
         });
     },
 
@@ -222,9 +196,9 @@ export default new Vuex.Store({
       firebase
         .auth()
         .createUserWithEmailAndPassword(email, password)
-        .then(user => {
-          console.log("user: ", user.uid);
-          commit("setAuth", user.uid);
+        .then(res => {
+          console.log("user: ", res.user.uid);
+          commit("setAuth", res.user.uid);
           dispatch("getData", { path: "/" });
         })
         .catch(e => {
@@ -237,9 +211,9 @@ export default new Vuex.Store({
       firebase
         .auth()
         .signInWithEmailAndPassword(email, password)
-        .then(user => {
-          console.log("user: ", user.uid);
-          commit("setAuth", user.uid);
+        .then(res => {
+          console.log("user: ", res.user.uid);
+          commit("setAuth", res.user.uid);
           dispatch("getData", {});
         })
         .catch(e => {
