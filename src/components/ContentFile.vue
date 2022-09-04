@@ -1,7 +1,22 @@
 <template>
-   <v-container v-if="data.length">
+   <v-container v-if="data.length" class="mb-16">
+
+
       <v-row v-if="haveFiles">
-         <v-col class="mt-4" cols="12">
+         <v-col class="filter" cols="12" v-if="this.extension.length > 1">
+
+            <v-select :items="['all', ...extension ]" label="Filter to type">
+               <template v-slot:item="{ item, attrs, on }">
+                  <v-list-item v-bind="attrs" v-on="on" @change="sortFbData(item)">
+                     <v-list-item-content>
+                        <v-list-item-title :id="attrs['aria-labelledby']" v-text="item"></v-list-item-title>
+                     </v-list-item-content>
+                  </v-list-item>
+               </template>
+            </v-select>
+         </v-col>
+
+         <v-col class="mt-4 text-center" cols="12">
             <strong>Files</strong>
          </v-col>
 
@@ -40,7 +55,7 @@
 
       <v-row v-if="!isShowFolders && haveFolders">
          <v-divider class="mx-4 mt-5" v-if="haveFiles"></v-divider>
-         <v-col class="mt-2" cols="12">
+         <v-col class="mt-2 text-center" cols="12">
             <strong>Folders</strong>
          </v-col>
 
@@ -93,14 +108,15 @@
 </template>
 
 <script>
-import { mapActions } from "vuex"
+import { mapActions, mapGetters } from "vuex"
 import ClickOutside from "vue-click-outside"
 import AppEditName from "@/components/AppEditName.vue"
 import AppAlerts from "@/components/AppAlerts.vue"
 export default {
    props: {
       data: Array,
-      size: Number
+      size: Number,
+      extension: Array
    },
    data(){
       return{
@@ -115,7 +131,7 @@ export default {
       AppAlerts
    },
    methods: {
-      ...mapActions(['removeFile', 'updateFile']),
+      ...mapActions(['removeFile', 'updateFile', 'sortFbData']),
       convertSize(size){
          return `${Math.round(size / 1024)}kb`
       },
@@ -140,6 +156,7 @@ export default {
       }
    },
    computed: {
+      ...mapGetters(['getFilteredFbData']),
       isShowFolders(){
          return this.$route.path.length > 1
       },
@@ -159,7 +176,6 @@ export default {
       ClickOutside,
    },
 }
-
 </script>
 
 <style>
@@ -174,5 +190,9 @@ export default {
    }
    .cards{
       min-width: 300px
+   }
+   .filter{
+      max-width: 250px;
+      margin: 0 auto;
    }
 </style>

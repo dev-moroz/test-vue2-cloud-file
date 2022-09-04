@@ -4,7 +4,7 @@
       <v-icon>mdi-chevron-double-left</v-icon>
     </router-link>
 
-    <ContentFile :data="getFbData" :size="getSizeData" />
+    <ContentFile :data="getFbData" :size="getSizeData" :extension="getExtension" />
 
     <AppAddBtnVue :path="getPath" :foldersize="getSizeData" />
   </div>
@@ -26,7 +26,7 @@ export default {
    ContentFile
   },
   computed: {
-     ...mapGetters(["getCurrentUser", "getFbData", 'getSizeData']),
+    ...mapGetters(["getCurrentUser", "getFbData", 'getSizeData', 'getExtension']),
     getPath() {
       return this.$route.path.split("/")[2]
     }

@@ -1,12 +1,13 @@
 <template>
    <div>
+
       <div v-if="loading" class="text-center">
          <v-progress-circular indeterminate color="primary"></v-progress-circular>
       </div>
 
       <div v-else>
          <div v-if="showIs">
-            <ContentFile :data="getFbData" :size="getSizeData" />
+            <ContentFile :data="getFbData" :size="getSizeData" :extension="getExtension" />
          </div>
          <v-container v-else>
             <v-row>
@@ -49,7 +50,7 @@ export default {
       },
    },
    computed: {
-      ...mapGetters(["getCurrentUser", "getFbData", 'getSizeData', 'loading']),
+      ...mapGetters(["getCurrentUser", "getFbData", 'getSizeData', 'loading', 'getExtension']),
       showIs() {
          return this.getFbData.length>0
       }

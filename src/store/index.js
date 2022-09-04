@@ -10,6 +10,7 @@ export default new Vuex.Store({
     currentUser: localStorage.id,
     fileUrl: "",
     fbData: "",
+    filteredFbData: "",
     loading: true,
     testGoogleId: "",
   },
@@ -17,7 +18,8 @@ export default new Vuex.Store({
     testGoogleId: s => s.testGoogleId,
     getCurrentUser: s => s.currentUser,
     getFileUrl: s => s.fileUrl,
-    getFbData: s => s.fbData,
+    getFbData: s => s.filteredFbData ? s.filteredFbData : s.fbData,
+    getFilteredFbData: s => s.filteredFbData,
     getSizeData: s =>
       s.fbData.reduce((arr, item) => {
         if (item.size) {
@@ -25,7 +27,14 @@ export default new Vuex.Store({
         }
         return arr;
       }, 0),
-    loading: s => s.loading
+    loading: s => s.loading,
+    getExtension: s =>
+      s.fbData.reduce((arr, item) => {
+        if (item.extension) {
+          arr.push(item.extension);
+        }
+        return [...new Set(arr)];
+      }, []),
   },
   mutations: {
     setUrl(state, url) {
@@ -43,13 +52,19 @@ export default new Vuex.Store({
     },
     setAuth(state, userId) {
       if (userId) {
-        // localStorage.id = user.uid
         localStorage.id = userId;
         state.currentUser = localStorage.id;
       } else {
         localStorage.id = "";
         state.currentUser = localStorage.id;
       }
+    },
+    setSortFbData(state, ex) {
+      ex === 'all'
+      ? state.filteredFbData = state.fbData
+      : state.filteredFbData = state.fbData.filter(
+          item => item.extension === ex
+        );
     },
   },
   actions: {
@@ -116,6 +131,7 @@ export default new Vuex.Store({
     },
 
     getData({ commit, state }, path) {
+      commit("setDataFromFB", []);
       commit("loading");
       firebase
         .database()
@@ -220,6 +236,10 @@ export default new Vuex.Store({
           console.log(e.message);
           commit("clearUrl");
         });
+    },
+
+    sortFbData({ commit }, ex) {
+      commit("setSortFbData", ex);
     },
   },
 });
