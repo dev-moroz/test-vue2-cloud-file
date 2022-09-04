@@ -40,7 +40,12 @@ export default {
    },
    watch:{
       getCurrentUser(){
-         location.reload()
+         // location.reload()
+
+         // need for git pages 
+         this.getCurrentUser !== ''
+         ? this.$router.push({path: '/'})
+         : this.$router.push({ path: '/login' })
       }
    }
 }
