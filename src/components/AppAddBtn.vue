@@ -26,8 +26,12 @@
     <v-overlay :value="visibleFile">
       <v-card elevation="5" class="mx-auto" mix-width="600">
         <v-flex class="addCard" v-click-outside="hideOverlayFile">
-          <v-file-input @change="onUploadFile()" counter multiple show-size v-model="newFile"></v-file-input>
-          <v-btn elevation="2" @click="addFile({ post, path, foldersize }), hideOverlayFile()" :disabled="!send">upload
+          <v-file-input @change="onUploadFile()" counter multiple show-size v-model="newFile" prepend-icon="mdi-file"
+          :rules="[ rules.extensionRule, rules.maxSizeRule, rules.permittedRule ]"
+          >
+          </v-file-input>
+          <v-btn elevation="2" @click="addFile({ post, path, foldersize }), hideOverlayFile()"
+            :disabled="!fileIsUploaded">upload
           </v-btn>
         </v-flex>
       </v-card>
@@ -60,10 +64,22 @@ export default {
       nameFile: "",
       extensionFile: '',
       opened: false,
+      size: 0,
+      maxFileSize: 20971520,
+
+      allowedUpload: false,
 
       visibleFolder: false,
       visibleFile: false,
-      zIndex: 0,
+
+      rules: {
+        maxSizeRule: v => v[0].size <= this.maxFileSize || this.maxSizeRule(),
+        extensionRule: v => {
+          const smash = v[0].name.split(".")
+          return smash[1] !== 'php' || this.unsupExtension() 
+        },
+        permittedRule: v => (((v[0].size >= this.maxFileSize) || (v[0].name.split(".")[1] === 'php')) || this.permitted()),
+      }
     }
   },
 
@@ -76,16 +92,20 @@ export default {
     },
 
     onUploadFile() {
+
       this.fileData = this.newFile[0]
       const smash = this.fileData.name.split(".")
       this.nameFile = smash[0]
       this.extensionFile = smash[1]
+      this.size = this.fileData.size
 
-      this.onUpload({
-        name: this.nameFile,
-        data: this.fileData,
-        extension: this.extensionFile
-      })
+      if (this.extensionFile !== 'php' && this.size <= this.maxFileSize){
+        this.onUpload({
+          name: this.nameFile,
+          data: this.fileData,
+          extension: this.extensionFile
+        })
+      }
     },
 
     hideOverlayFolder() {
@@ -96,6 +116,19 @@ export default {
     hideOverlayFile() {
       this.visibleFile = false
       this.newFile = null
+    },
+    maxSizeRule(){
+      this.allowedUpload = false
+      return 'Max size 20mb'
+    },
+
+    unsupExtension() {
+      this.allowedUpload = false
+      return 'File php not supported'
+    },
+
+    permitted() {
+      this.allowedUpload = true
     }
   },
   computed: {
@@ -104,7 +137,7 @@ export default {
     post() {
       return {
         name: this.nameFile,
-        size: this.fileData.size,
+        size: this.size,
         extension: this.extensionFile,
         id: this.uuidv4()
       }
@@ -112,11 +145,17 @@ export default {
 
     send(){
       return this.getFileUrl.length>0
+    },
+
+    fileIsUploaded(){
+      return this.fileData
+        ? this.fileData.name !== '' && this.send && this.allowedUpload
+        : false
     }
   },
   directives: {
     ClickOutside,
-  },
+  }
 }
 </script>
 
