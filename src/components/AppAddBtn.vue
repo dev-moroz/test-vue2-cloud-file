@@ -26,7 +26,7 @@
     <v-overlay :value="visibleFile">
       <v-card elevation="5" class="mx-auto" mix-width="600">
         <v-flex class="addCard" v-click-outside="hideOverlayFile">
-          <v-file-input @change="onUpload()" counter multiple show-size v-model="newFile"></v-file-input>
+          <v-file-input @change="onUploadFile()" counter multiple show-size v-model="newFile"></v-file-input>
           <v-btn elevation="2" @click="addFile({ post, path, foldersize }), hideOverlayFile()" :disabled="!send">upload
           </v-btn>
         </v-flex>
@@ -75,7 +75,7 @@ export default {
       this.opened = !this.opened
     },
 
-    onUpload() {
+    onUploadFile() {
       this.fileData = this.newFile[0]
       const smash = this.fileData.name.split(".")
       this.nameFile = smash[0]
