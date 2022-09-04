@@ -1,15 +1,13 @@
 <template>
-   <div>
-      <v-container>
-         <router-link to="/" class="text-decoration-none grey--text d-flex link-back">
-            <v-icon>mdi-chevron-double-left</v-icon>
-         </router-link>
-      </v-container>
+  <div>
+    <router-link to="/" class="text-decoration-none grey--text d-flex link-back mt-5">
+      <v-icon>mdi-chevron-double-left</v-icon>
+    </router-link>
 
-      <ContentFile :data="getFbData" :size="getSizeData" />
+    <ContentFile :data="getFbData" :size="getSizeData" />
 
-      <AppAddBtnVue :path="getPath" :foldersize="getSizeData" />
-   </div>
+    <AppAddBtnVue :path="getPath" :foldersize="getSizeData" />
+  </div>
 </template>
 
 <script>
@@ -41,4 +39,9 @@ export default {
   },
 }
 </script>
+<style>
+  .link-back{
+    position: absolute;
+  }
+</style>
 
