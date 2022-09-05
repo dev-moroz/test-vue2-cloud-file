@@ -26,9 +26,8 @@
     <v-overlay :value="visibleFile">
       <v-card elevation="5" class="mx-auto" mix-width="600">
         <v-flex class="addCard" v-click-outside="hideOverlayFile">
-          <v-file-input @change="onUploadFile()" counter multiple show-size v-model="newFile" prepend-icon="mdi-file"
-          :rules="[ rules.extensionRule, rules.maxSizeRule, rules.permittedRule ]"
-          >
+          <v-file-input @change="onUploadFile(newFile)" counter multiple show-size v-model="newFile"
+            prepend-icon="mdi-file" :rules="[ rules.extensionRule, rules.maxSizeRule, rules.permittedRule ]">
           </v-file-input>
           <v-btn elevation="2" @click="addFile({ post, path, foldersize }), hideOverlayFile()"
             :disabled="!fileIsUploaded">upload
@@ -73,12 +72,16 @@ export default {
       visibleFile: false,
 
       rules: {
-        maxSizeRule: v => v[0].size <= this.maxFileSize || this.maxSizeRule(),
+        maxSizeRule: v => (v && v[0]) ? v[0].size <= this.maxFileSize || this.maxSizeRule() : true,
         extensionRule: v => {
-          const smash = v[0].name.split(".")
-          return smash[1] !== 'php' || this.unsupExtension() 
+          if(v && v[0]){
+            const smash = v[0].name.split(".")
+            return smash[1] !== 'php' || this.unsupExtension() 
+          }else{
+            return true
+          }
         },
-        permittedRule: v => (((v[0].size >= this.maxFileSize) || (v[0].name.split(".")[1] === 'php')) || this.permitted()),
+        permittedRule: () => (!this.maxSizeRule && !this.extensionRule) || this.permitted()
       }
     }
   },
@@ -91,20 +94,23 @@ export default {
       this.opened = !this.opened
     },
 
-    onUploadFile() {
+    onUploadFile(e) {
+      if (e && e[0]){
 
-      this.fileData = this.newFile[0]
-      const smash = this.fileData.name.split(".")
-      this.nameFile = smash[0]
-      this.extensionFile = smash[1]
-      this.size = this.fileData.size
+        this.fileData = e[0]
+        const smash = e[0].name.split(".")
+        this.nameFile = smash[0]
+        this.extensionFile = smash[1]
+        this.size = e[0].size
 
-      if (this.extensionFile !== 'php' && this.size <= this.maxFileSize){
-        this.onUpload({
-          name: this.nameFile,
-          data: this.fileData,
-          extension: this.extensionFile
-        })
+        if (this.extensionFile !== 'php' && this.size <= this.maxFileSize){
+          this.onUpload({
+            name: this.nameFile,
+            data: this.fileData,
+            extension: this.extensionFile
+          })
+        }
+
       }
     },
 
@@ -129,6 +135,7 @@ export default {
 
     permitted() {
       this.allowedUpload = true
+      return true
     }
   },
   computed: {
@@ -149,7 +156,7 @@ export default {
 
     fileIsUploaded(){
       return this.fileData
-        ? this.fileData.name !== '' && this.send && this.allowedUpload
+        ? this.nameFile !== '' && this.send && this.allowedUpload
         : false
     }
   },
