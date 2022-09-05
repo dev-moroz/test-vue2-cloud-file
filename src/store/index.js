@@ -23,40 +23,40 @@ export default new Vuex.Store({
     getSizeData: s =>
       s.fbData.reduce((arr, item) => {
         if (item.size) {
-          arr += item.size;
+          arr += item.size
         }
-        return arr;
+        return arr
       }, 0),
     loading: s => s.loading,
     getExtension: s =>
       s.fbData.reduce((arr, item) => {
         if (item.extension) {
-          arr.push(item.extension);
+          arr.push(item.extension)
         }
-        return [...new Set(arr)];
+        return [...new Set(arr)]
       }, []),
   },
   mutations: {
     setUrl(state, url) {
-      state.fileUrl = url;
+      state.fileUrl = url
     },
     clearUrl(state) {
-      state.fileUrl = "";
+      state.fileUrl = ""
     },
     setDataFromFB(state, data) {
-      state.fbData = Object.keys(data).map(key => data[key]);
-      state.loading = false;
+      state.fbData = Object.keys(data).map(key => data[key])
+      state.loading = false
     },
     loading(state) {
-      state.loading = true;
+      state.loading = true
     },
     setAuth(state, userId) {
       if (userId) {
-        localStorage.id = userId;
-        state.currentUser = localStorage.id;
+        localStorage.id = userId
+        state.currentUser = localStorage.id
       } else {
-        localStorage.id = "";
-        state.currentUser = localStorage.id;
+        localStorage.id = ""
+        state.currentUser = localStorage.id
       }
     },
     setSortFbData(state, ex) {
@@ -64,28 +64,28 @@ export default new Vuex.Store({
       ? state.filteredFbData = state.fbData
       : state.filteredFbData = state.fbData.filter(
           item => item.extension === ex
-        );
+        )
     },
   },
   actions: {
     onUpload({ commit }, { name, data }) {
-      const storageRef = firebase.storage().ref(`${name}`).put(data);
+      const storageRef = firebase.storage().ref(`${name}`).put(data)
 
       storageRef.on(
         `state_changed`,
         snapshot => {
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
         },
         error => {
-          console.log(error.message);
+          console.log(error.message)
         },
 
         () => {
           storageRef.snapshot.ref.getDownloadURL().then(url => {
-            commit("setUrl", url);
-          });
+            commit("setUrl", url)
+          })
         }
-      );
+      )
     },
 
     addFile({ dispatch, commit, state }, { post, path, foldersize }) {
@@ -93,28 +93,26 @@ export default new Vuex.Store({
         .database()
         .ref(`${state.currentUser}/${path}/${post.id}`)
         .set({ ...post, url: state.fileUrl })
-        .then(response => {
-          console.log(response);
-          commit("clearUrl");
-          dispatch("getData", path);
+        .then(() => {
+          commit("clearUrl")
+          dispatch("getData", path)
         })
         .catch(err => {
-          console.log(err);
-        });
+          console.log(err)
+        })
 
       if (path != "") {
         firebase
           .database()
           .ref(`${state.currentUser}/${path}`)
           .update({ size: post.size + foldersize })
-          .then(response => {
-            console.log(response);
-            commit("clearUrl");
-            dispatch("getData", path);
+          .then(() => {
+            commit("clearUrl")
+            dispatch("getData", path)
           })
           .catch(err => {
-            console.log(err);
-          });
+            console.log(err)
+          })
       }
     },
 
@@ -123,16 +121,15 @@ export default new Vuex.Store({
         .database()
         .ref(`${state.currentUser}/${name}`)
         .set({ name: name, size: 0, folder: name })
-        .then(response => {
-          console.log(response);
-          commit("clearUrl");
-          dispatch("getData", "");
-        });
+        .then(() => {
+          commit("clearUrl")
+          dispatch("getData", "")
+        })
     },
 
     getData({ commit, state }, path) {
-      commit("setDataFromFB", []);
-      commit("loading");
+      commit("setDataFromFB", [])
+      commit("loading")
       firebase
         .database()
         .ref()
@@ -140,15 +137,15 @@ export default new Vuex.Store({
         .get()
         .then(snapshot => {
           if (snapshot.exists()) {
-            commit("setDataFromFB", snapshot.val());
+            commit("setDataFromFB", snapshot.val())
           } else {
-            console.log("No data available");
-            commit("setDataFromFB", []);
+            console.log("No data available")
+            commit("setDataFromFB", [])
           }
         })
         .catch(error => {
-          console.error(error);
-        });
+          console.error(error)
+        })
     },
 
     removeFile({ dispatch, state }, { name, path }) {
@@ -156,13 +153,12 @@ export default new Vuex.Store({
         .database()
         .ref(`${state.currentUser}/${path}${name}`)
         .remove()
-        .then(response => {
-          console.log(response);
-          dispatch("getData", path);
+        .then(() => {
+          dispatch("getData", path)
         })
         .catch(err => {
-          console.log(err);
-        });
+          console.log(err)
+        })
     },
 
     updateFile({ dispatch, state }, { path, newName, fileId }) {
@@ -170,28 +166,27 @@ export default new Vuex.Store({
         .database()
         .ref(`${state.currentUser}/${path}${fileId}`)
         .update({ name: `${newName}` })
-        .then(response => {
-          console.log("response: ", response);
-          dispatch("getData", path);
+        .then(() => {
+          dispatch("getData", path)
         })
         .catch(err => {
-          console.log(err);
-        });
+          console.log(err)
+        })
     },
 
     authGoogle({ dispatch, commit }) {
-      const provider = new firebase.auth.GoogleAuthProvider();
+      const provider = new firebase.auth.GoogleAuthProvider()
       firebase
         .auth()
         .signInWithPopup(provider)
         .then(res => {
           /** @type {firebase.auth.OAuthCredential} */
-          commit("setAuth", res.user.uid);
-          dispatch("getData", {});
+          commit("setAuth", res.user.uid)
+          dispatch("getData", {})
         })
         .catch(error => {
-          console.log(error);
-        });
+          console.log(error)
+        })
     },
 
     logoutGoogle({ dispatch, commit }) {
@@ -199,13 +194,13 @@ export default new Vuex.Store({
         .auth()
         .signOut()
         .then(() => {
-          commit("setAuth");
-          commit("setDataFromFB", []);
-          dispatch("getData", {});
+          commit("setAuth")
+          commit("setDataFromFB", [])
+          dispatch("getData", {})
         })
         .catch(error => {
-          console.log(error);
-        });
+          console.log(error)
+        })
     },
 
     registerGoogle({ dispatch, commit }, { email, password }) {
@@ -213,14 +208,14 @@ export default new Vuex.Store({
         .auth()
         .createUserWithEmailAndPassword(email, password)
         .then(res => {
-          console.log("user: ", res.user.uid);
-          commit("setAuth", res.user.uid);
-          dispatch("getData", { path: "/" });
+          console.log("user: ", res.user.uid)
+          commit("setAuth", res.user.uid)
+          dispatch("getData", { path: "/" })
         })
         .catch(e => {
-          console.log(e);
-          commit("clearUrl");
-        });
+          console.log(e)
+          commit("clearUrl")
+        })
     },
 
     loginGoogle({ dispatch, commit }, { email, password }) {
@@ -228,18 +223,18 @@ export default new Vuex.Store({
         .auth()
         .signInWithEmailAndPassword(email, password)
         .then(res => {
-          console.log("user: ", res.user.uid);
-          commit("setAuth", res.user.uid);
-          dispatch("getData", {});
+          console.log("user: ", res.user.uid)
+          commit("setAuth", res.user.uid)
+          dispatch("getData", {})
         })
         .catch(e => {
-          console.log(e.message);
-          commit("clearUrl");
-        });
+          console.log(e.message)
+          commit("clearUrl")
+        })
     },
 
     sortFbData({ commit }, ex) {
-      commit("setSortFbData", ex);
+      commit("setSortFbData", ex)
     },
   },
-});
+})
