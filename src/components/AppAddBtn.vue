@@ -3,11 +3,11 @@
     <v-layout row v-if="opened" class="newFolder" v-click-outside="changeVisible">
       <v-flex>
         <div>
-          <v-btn v-if="folder" block color="cyan" dark @click="visibleFolder = !visibleFolder">
+          <v-btn v-if="folder" block color="cyan" dark @click="showOverlayFolder">
             folder</v-btn>
         </div>
         <div>
-          <v-btn block color="cyan" dark @click="visibleFile = !visibleFile">file</v-btn>
+          <v-btn block color="cyan" dark @click="showOverlayFile">file</v-btn>
         </div>
       </v-flex>
     </v-layout>
@@ -114,15 +114,26 @@ export default {
       }
     },
 
+    showOverlayFolder() {
+      this.visibleFolder = true
+      this.changeVisible()
+    },
+
+    showOverlayFile() {
+      this.visibleFile = true
+      this.changeVisible()
+    },
+
     hideOverlayFolder() {
       this.visibleFolder = false
       this.nameFolder = ''
     },
-    
+
     hideOverlayFile() {
       this.visibleFile = false
       this.newFile = null
     },
+
     maxSizeRule(){
       this.allowedUpload = false
       return 'Max size 20mb'
