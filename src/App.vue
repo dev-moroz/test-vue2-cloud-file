@@ -36,16 +36,16 @@ export default {
       ...mapActions(['logoutGoogle', 'authGoogle']),
    },
    computed: {
-      ...mapGetters(['getCurrentUser','testGoogleId']),
+      ...mapGetters(['getCurrentUser', 'testGoogleId']),
    },
-   watch:{
-      getCurrentUser(){
+   watch: {
+      getCurrentUser() {
          // location.reload()
 
          // need for git pages 
          this.getCurrentUser !== ''
-         ? this.$router.push({path: '/'})
-         : this.$router.push({ path: '/login' })
+            ? this.$router.push({ path: '/' })
+            : this.$router.push({ path: '/login' })
       }
    }
 }
